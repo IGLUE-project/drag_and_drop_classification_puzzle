@@ -1,8 +1,8 @@
 {
-  "name": "DndClassify",
-  "version": "1.0.0",
+  "name": "DragAndDropClassification",
+  "version": "1.0.1",
   "description": "A web app for creating escape room puzzles for the Escapp platform",
-  "author": "GING UPM",
+  "author": "UEF & GING UPM",
   "license": "GNU General Public License v3.0",
   "repository": {
     "type": "git",

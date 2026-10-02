@@ -3,7 +3,7 @@ import {useState, useEffect, useRef, useContext } from 'react';
 import { GlobalContext } from "./GlobalContext";
 import './../assets/scss/app.scss';
 
-import { DEFAULT_APP_SETTINGS, SKIN_SETTINGS_RETRO, SKIN_SETTINGS_RETRO_JUNGLE, SKIN_SETTINGS_RETRO_REALISTIC, SKIN_SETTINGS_FUTURISTIC, ESCAPP_CLIENT_SETTINGS, MAIN_SCREEN, MESSAGE_SCREEN } from '../constants/constants.jsx';
+import { DEFAULT_APP_SETTINGS, SKIN_SETTINGS_RETRO, SKIN_SETTINGS_FUTURISTIC, ESCAPP_CLIENT_SETTINGS, MAIN_SCREEN, MESSAGE_SCREEN } from '../constants/constants.jsx';
 import MainScreen from './MainScreen.jsx';
 import MessageScreen from './MessageScreen.jsx';
 
@@ -11,7 +11,6 @@ export default function App() {
   const { escapp, setEscapp, appSettings, setAppSettings, Storage, setStorage, Utils, I18n } = useContext(GlobalContext);
   const hasExecutedEscappValidation = useRef(false);
   const [loading, setLoading] = useState(true);
-  const [passed, setPassed] = useState(undefined);
   const [screen, setScreen] = useState(MAIN_SCREEN);
   const prevScreen = useRef(screen);
   const solution = useRef(null);
@@ -55,12 +54,6 @@ export default function App() {
       case "RETRO":
         skinSettings = SKIN_SETTINGS_RETRO;
         break;
-      case "RETRO_JUNGLE":
-        skinSettings = SKIN_SETTINGS_RETRO_JUNGLE;
-        break;
-      case "RETRO_REALISTIC":
-        skinSettings = SKIN_SETTINGS_RETRO_REALISTIC;
-        break;
       case "FUTURISTIC":
         skinSettings = SKIN_SETTINGS_FUTURISTIC;
         break;
@@ -77,30 +70,12 @@ export default function App() {
       _appSettings.actionAfterSolve = DEFAULT_APP_SETTINGS.actionAfterSolve;
     }
 
-    switch(_appSettings.keysType){
-      case "LETTERS":
-        _appSettings.keys = _appSettings.letters;
-        _appSettings.backgroundKeys = new Array(12).fill(_appSettings.backgroundKey);
-        break;
-      case "COLORS":
-        _appSettings.keys = _appSettings.colors;
-        _appSettings.backgroundKeys = _appSettings.coloredBackgroundKeys;
-        break;
-      case "SYMBOLS":
-        _appSettings.keys = _appSettings.symbols;
-        if((_appSettings.skin === "FUTURISTIC")&&(_appSettings.backgroundKey === "images/background_key_futuristic.png")){
-          _appSettings.backgroundKey = "images/background_key_futuristic_black.png";
-        }
-        _appSettings.backgroundKeys = new Array(12).fill(_appSettings.backgroundKey);
-        break;
-      default:
-        //NUMBERS
-        _appSettings.keys = _appSettings.numbers;
-        _appSettings.backgroundKeys = new Array(12).fill(_appSettings.backgroundKey);
-    }
-
     //Init internacionalization module
     I18n.init(_appSettings);
+
+    if(typeof _appSettings.confirmationText !== "string"){
+      _appSettings.confirmationText = I18n.getTrans("i.confirmationButton");
+    }
 
     if(typeof _appSettings.message !== "string"){
       _appSettings.message = I18n.getTrans("i.message");
@@ -220,30 +195,28 @@ export default function App() {
     }
   }
 
-
-  function onKeypadSolved(_solution){
-    Utils.log("onKeypadSolved with solution:", _solution);
+  function onPuzzleSolved(_solution){
+    Utils.log("onPuzzleSolved with solution:", _solution);
     if(typeof _solution !== "string"){
       return;
     }
     solution.current = _solution;
-    submitPuzzleSolution();
+    switch(appSettings.actionAfterSolve){
+      case "SHOW_MESSAGE":
+        return setScreen(MESSAGE_SCREEN);
+      case "NONE":
+      default:
+        return submitPuzzleSolution();
+    }
   }
 
   function submitPuzzleSolution(){
     Utils.log("Submit puzzle solution", solution.current);
 
     escapp.submitNextPuzzle(solution.current, {}, (success, erState) => {
-
-      if (success) {
-          setPassed(true);
-          if(appSettings.actionAfterSolve === "SHOW_MESSAGE"){
-            setScreen(MESSAGE_SCREEN);
-          }
-        } else {
-          setPassed(false);
-          setScreen(MAIN_SCREEN);
-        }
+      if(!success){
+        setScreen(MAIN_SCREEN);
+      }
       Utils.log("Solution submitted to Escapp", solution.current, success, erState);
     });
   }
@@ -269,7 +242,7 @@ export default function App() {
   let screens = [
     {
       id: MAIN_SCREEN,
-      content: <MainScreen appHeight={appHeight} appWidth={appWidth} check={onKeypadSolved} passed={passed} />
+      content: <MainScreen appHeight={appHeight} appWidth={appWidth} onPuzzleSolved={onPuzzleSolved} />
     },
     {
       id: MESSAGE_SCREEN,
@@ -285,7 +258,7 @@ export default function App() {
       backgroundSize: appSettings.backgroundSize,
     }
   }
-  console.log("Render App with screen", screen);
+  // console.log("Render App with screen", screen);
   return (
     <div id="global_wrapper" 
       className={`${(appSettings !== null && typeof appSettings.skin === "string") ? appSettings.skin.toLowerCase() : ''}`}
