@@ -15,9 +15,9 @@ const MainScreen = (props) => {
   const [passed, setPassed] = useState(undefined);
 
   const getCurrentAnswer = () => {
-    const orderedleftImages = leftImages.map(x=>x.id).sort().join("_");
-    const orderedrightImages = rightImages.map(x=>x.id).sort().join("_");
-    return(orderedleftImages + ";" + orderedrightImages);
+    const orderedleftImages = leftImages.map(x => x.id).sort((a, b) => a - b).join("_");
+    const orderedrightImages = rightImages.map(x => x.id).sort((a, b) => a - b).join("_");
+    return orderedleftImages + ";" + orderedrightImages;
   }
      
   const onClickCheck = () => {
