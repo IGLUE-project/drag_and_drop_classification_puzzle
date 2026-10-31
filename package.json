@@ -19,14 +19,14 @@
     "package": "node tasks/package.js"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
     "cross-env": "^7.0.3",
     "dnd-multi-backend": "^9.0.0",
+    "react": "^18.3.1",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dnd-multi-backend": "^9.0.0",
     "react-dnd-touch-backend": "^16.0.1",
+    "react-dom": "^18.3.1",
     "react-modal": "^3.16.3"
   },
   "devDependencies": {
@@ -41,6 +41,7 @@
     "eslint-plugin-react-refresh": "^0.4.12",
     "fs-extra": "^11.3.0",
     "globals": "^15.9.0",
+    "rollup-license-plugin": "^3.2.1",
     "sass-embedded": "^1.80.3",
     "vite": "^7.3.1",
     "vite-plugin-static-copy": "^3.1.1"
